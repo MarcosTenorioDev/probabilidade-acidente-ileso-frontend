@@ -509,7 +509,7 @@ function App() {
                             <PopoverContent className="w-[200px] p-0">
                               <Command>
                                 <CommandInput placeholder="Procurar a BR..." />
-                                <CommandList>
+                                <CommandList className="custom-scroll">
                                   <CommandEmpty>
                                     BR não encontrada.
                                   </CommandEmpty>
