@@ -24,8 +24,22 @@ import {
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { AlertTriangle, Car } from "lucide-react";
+import { AlertTriangle, Car, Check, ChevronsUpDown } from "lucide-react";
 import { Introduction } from "./components/Introduction";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "./components/ui/popover";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "./components/ui/command";
+import { cn } from "./lib/utils";
 
 const formSchema = z.object({
   Pessoas: z.number().int().positive("O número de pessoas deve ser positivo."),
@@ -38,11 +52,7 @@ const formSchema = z.object({
   Pista: z.string().nonempty("O tipo de pista é obrigatório."),
   Traçado: z.string().nonempty("O traçado da via é obrigatório."),
   UF: z.string().length(2, "A UF deve ter exatamente 2 caracteres."),
-  BR: z
-    .number()
-    .int()
-    .positive("O número da BR deve ser positivo.")
-    .int("O número da BR deve ser inteiro."),
+  BR: z.string().nonempty("A BR é obrigatória"),
   Mês: z.string().min(1, "O mês é obrigatório."),
   Dia: z
     .number()
@@ -54,6 +64,135 @@ const formSchema = z.object({
 function App() {
   const [prediction, setPrediction] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const brs = [
+    "101",
+    "116",
+    "163",
+    "376",
+    "262",
+    "381",
+    "465",
+    "392",
+    "316",
+    "50",
+    "365",
+    "290",
+    "386",
+    "40",
+    "324",
+    "364",
+    "210",
+    "412",
+    "428",
+    "280",
+    "470",
+    "20",
+    "480",
+    "158",
+    "407",
+    "153",
+    "222",
+    "277",
+    "282",
+    "251",
+    "70",
+    "459",
+    "259",
+    "493",
+    "230",
+    "110",
+    "343",
+    "242",
+    "285",
+    "60",
+    "319",
+    "174",
+    "232",
+    "467",
+    "405",
+    "476",
+    "10",
+    "410",
+    "423",
+    "155",
+    "287",
+    "393",
+    "421",
+    "452",
+    "356",
+    "472",
+    "414",
+    "135",
+    "435",
+    "373",
+    "432",
+    "226",
+    "369",
+    "354",
+    "267",
+    "0",
+    "408",
+    "359",
+    "471",
+    "349",
+    "304",
+    "424",
+    "463",
+    "293",
+    "80",
+    "146",
+    "235",
+    "30",
+    "104",
+    "468",
+    "448",
+    "430",
+    "406",
+    "330",
+    "415",
+    "402",
+    "361",
+    "487",
+    "272",
+    "427",
+    "367",
+    "495",
+    "122",
+    "419",
+    "429",
+    "401",
+    "420",
+    "436",
+    "308",
+    "317",
+    "418",
+    "488",
+    "425",
+    "156",
+    "416",
+    "469",
+    "447",
+    "437",
+    "434",
+    "352",
+    "342",
+    "403",
+    "433",
+    "485",
+    "422",
+    "265",
+    "426",
+    "494",
+    "498",
+    "404",
+    "377",
+    "473",
+    "482",
+    "484",
+    "457",
+    "477",
+  ];
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -64,18 +203,26 @@ function App() {
       Pista: "",
       Traçado: "",
       UF: "",
-      BR: 0,
+      BR: "",
       Mês: "",
       Dia: 1,
     },
   });
 
+  const [open, setOpen] = useState(false);
+  const [value, setValue] = useState("");
+
   async function onSubmit(values: z.infer<typeof formSchema>) {
+    const brParsedNumber = Number(values.BR);
+    const payload = {
+      ...values,
+      BR: brParsedNumber,
+    };
     try {
       setIsLoading(true);
       const response = await axios.post(
         "https://backend-aprendizado-de-maquinas-production.up.railway.app/prever",
-        values
+        payload
       );
       setPrediction(response.data.probabilidade_ileso);
     } catch (error) {
@@ -343,22 +490,62 @@ function App() {
                     control={form.control}
                     name="BR"
                     render={({ field }) => (
-                      <FormItem className="text-black">
-                        <FormLabel>Número da BR</FormLabel>
+                      <FormItem className="text-black flex flex-col pt-3">
+                        <FormLabel>Rodovia Federal (BR)</FormLabel>
                         <FormControl>
-                          <Input
-                            type="number"
-                            {...field}
-                            onChange={(e) =>
-                              field.onChange(parseInt(e.target.value))
-                            }
-                            className="border-black"
-                          />
+                          <Popover open={open} onOpenChange={setOpen}>
+                            <PopoverTrigger asChild>
+                              <Button
+                                variant="outline"
+                                aria-expanded={open}
+                                className="justify-between !bg-white !text-black font-normal"
+                              >
+                                {value
+                                  ? brs.find((br) => br === value)
+                                  : "Selecione a BR..."}
+                                <ChevronsUpDown className="opacity-50" />
+                              </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-[200px] p-0">
+                              <Command>
+                                <CommandInput placeholder="Procurar a BR..." />
+                                <CommandList>
+                                  <CommandEmpty>
+                                    BR não encontrada.
+                                  </CommandEmpty>
+                                  <CommandGroup>
+                                    {brs.map((br: string, i) => (
+                                      <CommandItem
+                                        key={i}
+                                        value={br}
+                                        onSelect={(currentValue) => {
+                                          setValue(currentValue);
+                                          field.onChange(currentValue);
+                                          setOpen(false);
+                                        }}
+                                      >
+                                        {br}
+                                        <Check
+                                          className={cn(
+                                            "ml-auto",
+                                            value === br
+                                              ? "opacity-100"
+                                              : "opacity-0"
+                                          )}
+                                        />
+                                      </CommandItem>
+                                    ))}
+                                  </CommandGroup>
+                                </CommandList>
+                              </Command>
+                            </PopoverContent>
+                          </Popover>
                         </FormControl>
                         <FormMessage className="text-red-500" />
                       </FormItem>
                     )}
                   />
+
                   <FormField
                     control={form.control}
                     name="Mês"

@@ -23,7 +23,7 @@
   --border: 127 20% 18%;
   --input: 127 20% 18%;
   --ring: 127 83% 58%;
-  --radius: 1rem;
+  --radius: 0.5rem;
   }
 }
 @layer base {

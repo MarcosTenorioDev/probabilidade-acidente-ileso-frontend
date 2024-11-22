@@ -100,7 +100,7 @@ export const Introduction = () => {
           />
 
           <a
-            href="https://colab.research.google.com/drive/1FSznDEK3Xhwd4H0tX6vv5geidjeRVXlF#scrollTo=ICdNTBJJ3OSc"
+            href="https://colab.research.google.com/drive/1_ZGusq_JGaKlGgb6LHng3NX6dY-tzD2q?usp=sharing"
             target="_blank"
             className="w-full"
           >
